@@ -1,0 +1,23 @@
+## Build results
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+## Visual Studio cache / user files
+.vs/
+*.user
+*.userosscache
+*.suo
+*.userprefs
+*.sln.docstates
+
+## OS generated files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+## Tooling / temporary files
+*.tmp
+*.temp
+*.log

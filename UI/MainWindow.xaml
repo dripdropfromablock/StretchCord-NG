@@ -1,0 +1,459 @@
+<Window x:Class="StretchCordNG.UI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:StretchCordNG.Controls"
+        Title="StretchCord"
+        Width="500"
+        Height="780"
+        MinWidth="430"
+        MinHeight="620"
+        Background="{StaticResource B.Bg}"
+        WindowStartupLocation="CenterScreen"
+        FontFamily="Segoe UI"
+        UseLayoutRounding="True"
+        SnapsToDevicePixels="True">
+
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+
+        <Style x:Key="StreamButton" TargetType="Button">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="16,13"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="Template" Value="{StaticResource ButtonBase}"/>
+            <Setter Property="Background" Value="{StaticResource B.Accent}"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsIdle}" Value="False">
+                    <Setter Property="Background" Value="{StaticResource B.Danger}"/>
+                </DataTrigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Foreground" Value="{StaticResource B.TextFaint}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="RowLabel" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource B.Text}"/>
+            <Setter Property="FontSize" Value="13"/>
+        </Style>
+
+        <Style x:Key="RowSub" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource B.TextFaint}"/>
+            <Setter Property="FontSize" Value="11.5"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="Margin" Value="0,2,0,0"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- ═══════════════ Header ═══════════════ -->
+        <Border Grid.Row="0"
+                Background="#0F1118"
+                BorderBrush="{StaticResource B.Border}"
+                BorderThickness="0,0,0,1"
+                Padding="20,16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel>
+                    <TextBlock Text="StretchCord"
+                               FontSize="21"
+                               FontWeight="Bold"
+                               Foreground="{StaticResource B.Text}"/>
+                    <TextBlock Text="Stretch your game, stream it clean to Discord"
+                               FontSize="12"
+                               Foreground="{StaticResource B.TextFaint}"
+                               Margin="0,3,0,0"/>
+                </StackPanel>
+
+                <Border Grid.Column="1"
+                        CornerRadius="999"
+                        Background="#1A1E2A"
+                        Padding="11,5"
+                        VerticalAlignment="Center">
+                    <TextBlock>
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Text" Value="IDLE"/>
+                                <Setter Property="Foreground" Value="#7C8598"/>
+                                <Setter Property="FontSize" Value="10.5"/>
+                                <Setter Property="FontWeight" Value="Bold"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsIdle}" Value="False">
+                                        <Setter Property="Text" Value="● LIVE"/>
+                                        <Setter Property="Foreground" Value="{StaticResource B.Success}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- ═══════════════ Content ═══════════════ -->
+        <ScrollViewer Grid.Row="1"
+                      VerticalScrollBarVisibility="Auto"
+                      Padding="0,4">
+            <StackPanel Margin="16,12,16,20">
+
+                <!-- ── Preview ── -->
+                <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="PREVIEW" Style="{StaticResource T.Section}" Margin="0"/>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                <Button Content="Diagnostics"
+                                        Style="{StaticResource Btn.Ghost}"
+                                        Padding="11,6"
+                                        FontSize="12"
+                                        ToolTip="Writes a report with the window geometry, the pointer decision and the recent log"
+                                        Click="BtnDiagnostics_Click"/>
+                                <Button Content="Open stream window"
+                                        Style="{StaticResource Btn.Ghost}"
+                                        Padding="11,6"
+                                        FontSize="12"
+                                        Margin="8,0,0,0"
+                                        Click="BtnOpenStream_Click"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <Border Background="#000000"
+                                BorderBrush="{StaticResource B.Border}"
+                                BorderThickness="1"
+                                CornerRadius="9"
+                                ClipToBounds="True"
+                                Height="210">
+                            <controls:VideoSurface x:Name="Preview"/>
+                        </Border>
+
+                        <Grid Margin="0,12,0,12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="{Binding SourceSizeLabel}"
+                                       Style="{StaticResource T.Caption}"
+                                       VerticalAlignment="Center"/>
+                            <Button Grid.Column="1"
+                                    Content="{Binding StreamButtonLabel}"
+                                    Style="{StaticResource StreamButton}"
+                                    MinWidth="180"
+                                    Click="BtnStream_Click"/>
+                        </Grid>
+
+                        <TextBlock Text="{Binding StatusMessage}"
+                                   Foreground="{StaticResource B.TextDim}"
+                                   FontSize="12"
+                                   TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- ── Source ── -->
+                <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="GAME WINDOW" Style="{StaticResource T.Section}" Margin="0"/>
+                            <Button Grid.Column="1"
+                                    Content="Change…"
+                                    Style="{StaticResource Btn.Ghost}"
+                                    Padding="11,6"
+                                    FontSize="12"
+                                    Click="BtnPickWindow_Click"/>
+                        </Grid>
+
+                        <TextBlock Text="{Binding SourceLabel}"
+                                   Style="{StaticResource T.Value}"
+                                   TextWrapping="Wrap"
+                                   Margin="0,0,0,4"/>
+                        <TextBlock Text="Windowed or borderless windowed mode captures best. Fullscreen-exclusive games may show a black frame."
+                                   Style="{StaticResource T.Caption}"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- ── Video ── -->
+                <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                    <StackPanel>
+                        <TextBlock Text="VIDEO" Style="{StaticResource T.Section}"/>
+
+                        <Grid Margin="0,0,0,14">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="Stretch to fill" Style="{StaticResource RowLabel}"/>
+                                <TextBlock Text="Forces 4:3 content into the 16:9 frame" Style="{StaticResource RowSub}"/>
+                            </StackPanel>
+                            <ToggleButton Grid.Column="1"
+                                          Style="{StaticResource Switch}"
+                                          VerticalAlignment="Center"
+                                          IsChecked="{Binding StretchFill}"/>
+                        </Grid>
+
+                        <Grid Margin="0,0,0,14">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="Show mouse pointer" Style="{StaticResource RowLabel}"/>
+                                <TextBlock Text="Drawn at its exact position inside the picture" Style="{StaticResource RowSub}"/>
+                            </StackPanel>
+                            <ToggleButton Grid.Column="1"
+                                          Style="{StaticResource Switch}"
+                                          VerticalAlignment="Center"
+                                          IsChecked="{Binding ShowCursor}"/>
+                        </Grid>
+
+                        <Grid Margin="0,0,0,14">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="Prefer efficiency cores" Style="{StaticResource RowLabel}"/>
+                                <TextBlock Text="Runs the capture and audio workers on E-cores so the game keeps every P-core" Style="{StaticResource RowSub}"/>
+                            </StackPanel>
+                            <ToggleButton Grid.Column="1"
+                                          Style="{StaticResource Switch}"
+                                          VerticalAlignment="Center"
+                                          IsChecked="{Binding PreferEfficiencyCores}"/>
+                        </Grid>
+
+                        <!-- Pointer correction, remembered per game -->
+                        <Border Background="{StaticResource B.SurfaceAlt}"
+                                IsEnabled="{Binding HasSource}"
+                                BorderBrush="{StaticResource B.Border}"
+                                BorderThickness="1"
+                                CornerRadius="9"
+                                Padding="11,10"
+                                Margin="0,0,0,14">
+                            <StackPanel>
+                                <TextBlock Text="Pointer calibration" Style="{StaticResource RowLabel}"/>
+                                <TextBlock Text="{Binding CalibrationScope}"
+                                           Style="{StaticResource RowSub}"
+                                           TextWrapping="Wrap"
+                                           Margin="0,2,0,0"/>
+                                <TextBlock Text="{Binding CalibrationSummary}"
+                                           Style="{StaticResource T.Caption}"
+                                           TextWrapping="Wrap"
+                                           Margin="0,7,0,0"/>
+
+                                <Grid Margin="0,9,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBlock Grid.Column="0"
+                                               Text="Scale X"
+                                               Style="{StaticResource RowSub}"
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,7,0"/>
+                                    <TextBox Grid.Column="1"
+                                             Text="{Binding CalibrationScaleXText}"
+                                             Style="{StaticResource Input}"
+                                             Padding="7,5"
+                                             Margin="0,0,12,0"/>
+                                    <TextBlock Grid.Column="2"
+                                               Text="Scale Y"
+                                               Style="{StaticResource RowSub}"
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,7,0"/>
+                                    <TextBox Grid.Column="3"
+                                             Text="{Binding CalibrationScaleYText}"
+                                             Style="{StaticResource Input}"
+                                             Padding="7,5"/>
+                                </Grid>
+
+                                <Grid Margin="0,8,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <Button Grid.Column="0" Content="◀" Style="{StaticResource Btn.Ghost}"
+                                            Padding="9,4" ToolTip="Move the pointer 1 px left" Click="BtnNudgeLeft_Click"/>
+                                    <Button Grid.Column="1" Content="▲" Style="{StaticResource Btn.Ghost}"
+                                            Padding="9,4" Margin="6,0,0,0" ToolTip="Move the pointer 1 px up" Click="BtnNudgeUp_Click"/>
+                                    <Button Grid.Column="2" Content="▼" Style="{StaticResource Btn.Ghost}"
+                                            Padding="9,4" Margin="6,0,0,0" ToolTip="Move the pointer 1 px down" Click="BtnNudgeDown_Click"/>
+                                    <Button Grid.Column="3" Content="▶" Style="{StaticResource Btn.Ghost}"
+                                            Padding="9,4" Margin="6,0,0,0" ToolTip="Move the pointer 1 px right" Click="BtnNudgeRight_Click"/>
+
+                                    <TextBlock Grid.Column="4"
+                                               Text="{Binding CalibrationOffsetText}"
+                                               Style="{StaticResource T.Caption}"
+                                               VerticalAlignment="Center"
+                                               Margin="11,0,8,0"/>
+
+                                    <Button Grid.Column="5" Content="Reset" Style="{StaticResource Btn.Ghost}"
+                                            Padding="11,5" ToolTip="Back to the detected mapping" Click="BtnResetCalibration_Click"/>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="Frame rate" Style="{StaticResource RowLabel}"/>
+                                <TextBlock Text="Lower uses less CPU while still looking smooth" Style="{StaticResource RowSub}"/>
+                            </StackPanel>
+                            <ComboBox Grid.Column="1"
+                                      Width="170"
+                                      ItemsSource="{Binding FpsOptions}"
+                                      DisplayMemberPath="Label"
+                                      SelectedValuePath="Value"
+                                      SelectedValue="{Binding MaxFps}"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- ── Audio ── -->
+                <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                    <StackPanel>
+                        <TextBlock Text="AUDIO" Style="{StaticResource T.Section}"/>
+
+                        <TextBlock Text="Where StretchCord replays the game sound"
+                                   Style="{StaticResource RowLabel}"
+                                   Margin="0,0,0,6"/>
+                        <ComboBox ItemsSource="{Binding Devices}"
+                                  DisplayMemberPath="Label"
+                                  SelectedItem="{Binding SelectedDevice}"
+                                  Margin="0,0,0,14"/>
+
+                        <Grid Margin="0,0,0,14">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="Mute the game when needed" Style="{StaticResource RowLabel}"/>
+                                <TextBlock Text="Stops you hearing it twice when there is only one output" Style="{StaticResource RowSub}"/>
+                            </StackPanel>
+                            <ToggleButton Grid.Column="1"
+                                          Style="{StaticResource Switch}"
+                                          VerticalAlignment="Center"
+                                          IsChecked="{Binding AutoMuteGame}"/>
+                        </Grid>
+
+                        <Grid Margin="0,0,0,14">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="Replay latency" Style="{StaticResource RowLabel}"/>
+                                <TextBlock Text="Delay between the game and its replay" Style="{StaticResource RowSub}"/>
+                            </StackPanel>
+                            <ComboBox Grid.Column="1"
+                                      Width="170"
+                                      ItemsSource="{Binding LatencyOptions}"
+                                      DisplayMemberPath="Label"
+                                      SelectedValuePath="Value"
+                                      SelectedValue="{Binding AudioLatencyMs}"/>
+                        </Grid>
+
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="LEVEL" Style="{StaticResource T.Section}" Margin="0"/>
+                            <TextBlock Grid.Column="1"
+                                       Text="{Binding MuteStateLabel}"
+                                       Style="{StaticResource T.Section}"
+                                       Margin="0"/>
+                        </Grid>
+
+                        <Border CornerRadius="3" Background="#1A1E2A" Height="7" ClipToBounds="True">
+                            <Border x:Name="LevelTrack">
+                                <Rectangle HorizontalAlignment="Left"
+                                           Fill="{StaticResource B.Success}"
+                                           Width="{Binding ActualWidth, ElementName=LevelTrack}">
+                                    <Rectangle.RenderTransform>
+                                        <ScaleTransform ScaleX="{Binding AudioLevel}"/>
+                                    </Rectangle.RenderTransform>
+                                </Rectangle>
+                            </Border>
+                        </Border>
+
+                        <TextBlock Text="{Binding AudioSummary}"
+                                   Style="{StaticResource T.Body}"
+                                   Margin="0,12,0,0"/>
+
+                        <Border Background="#2A2208"
+                                BorderBrush="#5A4510"
+                                BorderThickness="1"
+                                CornerRadius="8"
+                                Padding="10,8"
+                                Margin="0,10,0,0"
+                                Visibility="{Binding HasAudioWarning, Converter={StaticResource BoolToVis}}">
+                            <TextBlock Text="{Binding AudioWarning}"
+                                       Foreground="#F0C566"
+                                       FontSize="11.5"
+                                       TextWrapping="Wrap"/>
+                        </Border>
+                    </StackPanel>
+                </Border>
+
+                <!-- ── Guide ── -->
+                <Border Background="#10121A"
+                        BorderBrush="{StaticResource B.Border}"
+                        BorderThickness="1"
+                        CornerRadius="12"
+                        Padding="16,14">
+                    <StackPanel>
+                        <TextBlock Text="HOW TO USE IT" Style="{StaticResource T.Section}"/>
+                        <TextBlock Foreground="{StaticResource B.TextDim}" FontSize="12" TextWrapping="Wrap" LineHeight="19">
+1. Open your game in windowed / borderless mode&#10;2. Pick the game window above, then press Start stream&#10;3. In Discord choose Share screen → the “StretchCord — Stream” window&#10;4. Keep that window visible and un-minimized while you stream
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- ═══════════════ Status bar ═══════════════ -->
+        <Border Grid.Row="2"
+                Background="#0F1118"
+                BorderBrush="{StaticResource B.Border}"
+                BorderThickness="0,1,0,0"
+                Padding="16,8">
+            <TextBlock Text="{Binding StatusMessage}"
+                       Foreground="{StaticResource B.TextFaint}"
+                       FontSize="11"
+                       TextTrimming="CharacterEllipsis"/>
+        </Border>
+    </Grid>
+</Window>

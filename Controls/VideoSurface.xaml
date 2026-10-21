@@ -1,0 +1,34 @@
+<UserControl x:Class="StretchCordNG.Controls.VideoSurface"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="#000000"
+             ClipToBounds="True">
+    <Grid x:Name="Root">
+        <Image x:Name="FrameImage"
+               Stretch="Fill"
+               RenderOptions.BitmapScalingMode="Linear"
+               Visibility="Collapsed"/>
+
+        <Canvas x:Name="CursorLayer" IsHitTestVisible="False" ClipToBounds="True">
+            <Image x:Name="CursorImage" Visibility="Collapsed"/>
+        </Canvas>
+
+        <StackPanel x:Name="EmptyState"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    IsHitTestVisible="False">
+            <TextBlock x:Name="EmptyTitle"
+                       Text="No video source"
+                       Foreground="#8A93A6"
+                       FontSize="15"
+                       FontWeight="SemiBold"
+                       HorizontalAlignment="Center"/>
+            <TextBlock x:Name="EmptySubtitle"
+                       Text="Pick a window, then press Start stream"
+                       Foreground="#5B6274"
+                       FontSize="12"
+                       HorizontalAlignment="Center"
+                       Margin="0,4,0,0"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

@@ -1,0 +1,95 @@
+<Window x:Class="StretchCordNG.UI.StreamWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:StretchCordNG.Controls"
+        Title="StretchCord — Stream"
+        Width="1280"
+        Height="720"
+        MinWidth="320"
+        MinHeight="180"
+        WindowStyle="None"
+        ResizeMode="CanResize"
+        Background="#000000"
+        ShowInTaskbar="True"
+        UseLayoutRounding="True"
+        SnapsToDevicePixels="True"
+        Focusable="True"
+        KeyDown="Root_KeyDown">
+
+    <Grid x:Name="Root" Background="#000000">
+
+        <!-- ═══ The picture Discord captures ═══ -->
+        <controls:VideoSurface x:Name="Surface"/>
+
+        <!-- ═══ Auto-hiding control bar ═══ -->
+        <Border x:Name="Chrome"
+                Height="38"
+                VerticalAlignment="Top"
+                Panel.ZIndex="20"
+                Background="#D50A0C11"
+                BorderBrush="#3A4152"
+                BorderThickness="0,0,0,1">
+            <Grid Margin="10,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- drag region -->
+                <StackPanel Orientation="Horizontal"
+                            VerticalAlignment="Center"
+                            Background="Transparent"
+                            Cursor="SizeAll"
+                            MouseLeftButtonDown="DragArea_MouseDown"
+                            MouseLeftButtonUp="DragArea_MouseUp">
+                    <TextBlock Text="StretchCord"
+                               Foreground="#E8EAF0"
+                               FontSize="12.5"
+                               FontWeight="SemiBold"
+                               VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding SourceSizeLabel}"
+                               Foreground="#7C8598"
+                               FontSize="11.5"
+                               Margin="10,0,0,0"
+                               VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1"
+                            Orientation="Horizontal"
+                            VerticalAlignment="Center">
+                    <Button x:Name="BtnPin"
+                            Style="{StaticResource Btn.Icon}"
+                            Content="⌖"
+                            ToolTip="Always on top"
+                            Click="BtnPin_Click"/>
+                    <Button Style="{StaticResource Btn.Icon}"
+                            Content="⛶"
+                            FontSize="15"
+                            ToolTip="Fullscreen (F11)"
+                            Click="BtnFullscreen_Click"/>
+                    <Button Style="{StaticResource Btn.Icon}"
+                            Content="─"
+                            ToolTip="Minimize"
+                            Click="BtnMinimize_Click"/>
+                    <Button Style="{StaticResource Btn.Icon}"
+                            Content="✕"
+                            Foreground="#E8686A"
+                            ToolTip="Close stream window"
+                            Click="BtnClose_Click"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- ═══ Fullscreen hint (only while the bar is hidden) ═══ -->
+        <TextBlock x:Name="FullscreenHint"
+                   Text="F11 / Esc to leave fullscreen"
+                   Foreground="#FFFFFF"
+                   FontSize="11.5"
+                   Opacity="0.35"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Bottom"
+                   Margin="0,0,0,14"
+                   Panel.ZIndex="15"
+                   Visibility="Collapsed"/>
+    </Grid>
+</Window>
